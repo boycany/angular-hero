@@ -1,0 +1,19 @@
+.grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-gap: 2px;
+}
+
+.form {
+    padding: 8px;
+}
+
+.form__label {
+    margin-bottom: 12px;
+    font-weight: 600;
+    font-size: 18px;
+}
+
+.col-12 {
+    grid-column: auto/span 12;
+}

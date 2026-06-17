@@ -1,2 +1,7 @@
 <h1>{{ title() }}</h1>
-<router-outlet />
+<form [formGroup]="form" novalidate class="form grid">
+  <div class="col-12">
+    <div class="form__label">・Phone Number:</div>
+    <app-phone-number-control formControlName="phone" />
+  </div>
+</form>
