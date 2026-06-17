@@ -86,32 +86,70 @@ export class PhoneNumberControl implements ControlValueAccessor, Validator {
 
   errorStateMatcher = new CustomErrorStateMatcher();
 
-  constructor() {
-    this.countryControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((countryCode) => {
-      this.phoneControl.clearValidators();
-      if (!countryCode) return;
+  // constructor() {
+  //   this.countryControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((countryCode) => {
+  //     this.phoneControl.clearValidators();
+  //     if (!countryCode) return;
 
+  //     if (this.phoneControl.value) {
+  //       this.phoneControl.reset();
+  //     }
+  //     this.phoneControl.addValidators(phoneNumberValidator(countryCode));
+  //     this.phonePlaceholder.set(getPhoneNumberPlaceholder(countryCode));
+  //     this.updateValue();
+  //   });
+
+  //   this.phoneControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((phone) => {
+  //     this.updateValue();
+  //   });
+
+  //   effect(() => {
+  //     if(this.required() === true){
+  //       this.phoneControl.addValidators(Validators.required);
+  //       this.countryControl.addValidators(Validators.required)
+  //     } else {
+  //       this.phoneControl.removeValidators(Validators.required);
+  //       this.countryControl.removeValidators(Validators.required)
+  //     }
+  //   })
+  // }
+  constructor() {
+    // 換國家：重設 phone 的 validator（含 required），清掉舊號碼
+    this.countryControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((countryCode) => {
       if (this.phoneControl.value) {
         this.phoneControl.reset();
       }
-      this.phoneControl.addValidators(phoneNumberValidator(countryCode));
-      this.phonePlaceholder.set(getPhoneNumberPlaceholder(countryCode));
+      this.phonePlaceholder.set(countryCode ? getPhoneNumberPlaceholder(countryCode) : '');
+      this.applyPhoneValidators();
       this.updateValue();
     });
 
-    this.phoneControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((phone) => {
+    // 號碼變動：對外送值
+    this.phoneControl.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
       this.updateValue();
     });
 
+    // required 變動：country 與 phone 的 required 一起更新（phone 走共用 method）
     effect(() => {
-      if(this.required() === true){
-        this.phoneControl.addValidators(Validators.required);
-        this.countryControl.addValidators(Validators.required)
+      if (this.required()) {
+        this.countryControl.addValidators(Validators.required);
       } else {
-        this.phoneControl.removeValidators(Validators.required);
-        this.countryControl.removeValidators(Validators.required)
+        this.countryControl.removeValidators(Validators.required);
       }
-    })
+      this.countryControl.updateValueAndValidity({ emitEvent: false });
+      this.applyPhoneValidators();
+    });
+  }
+
+  // phone validator 的單一來源：依目前國家 + required 重新設定
+  private applyPhoneValidators(): void {
+    const countryCode = this.countryControl.value;
+    const validators = countryCode ? [phoneNumberValidator(countryCode)] : [];
+    if (this.required()) {
+      validators.push(Validators.required);
+    }
+    this.phoneControl.setValidators(validators);
+    this.phoneControl.updateValueAndValidity({ emitEvent: false });
   }
 
   updateValue() {
