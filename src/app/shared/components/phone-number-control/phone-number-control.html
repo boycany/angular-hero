@@ -2,11 +2,13 @@
     <mat-form-field>
         <mat-label>Country</mat-label>
         <mat-select
-        [formControl]="countryControl"
-        [canSelectNullableOptions]="true"
-        [panelWidth]="null"
+            [formControl]="countryControl"
+            [canSelectNullableOptions]="true"
+            [panelWidth]="null"
         >
-        <mat-option [value]="null">None</mat-option>
+        @if(!required()){
+            <mat-option [value]="null">None</mat-option>
+        }
         @for (country of countries; track country.code) {
             <mat-option [value]="country.code"
             >{{ country.code }} (+{{ country.callingCode }})
@@ -21,20 +23,23 @@
     <mat-form-field>
         <mat-label>Phone Number</mat-label>
         <input
-        matInput
-        type="text"
-        [formControl]="phoneControl"
-        [placeholder]="phonePlaceholder()"
-        [errorStateMatcher]="errorStateMatcher"
-        (blur)="onTouched()"
+            matInput
+            type="text"
+            [formControl]="phoneControl"
+            [placeholder]="phonePlaceholder()"
+            [errorStateMatcher]="errorStateMatcher"
+            (blur)="onTouched()"
         />
         @if (phoneControl.hasError('phoneNumberInvalid')) {
-        <mat-error>Phone number is invalid</mat-error>
+            <mat-error>Phone number is invalid</mat-error>
         }
         @if (phoneControl.hasError('parseError')) {
-        <mat-error>
-            {{ phoneControl.errors?.['parseError'] | removeUnderline | titlecase }}
-        </mat-error>
+            <mat-error>
+                {{ phoneControl.errors?.['parseError'] | removeUnderline | titlecase }}
+            </mat-error>
+        }
+        @if(phoneControl.hasError('required')) {
+            <mat-error>Phone number is required</mat-error>
         }
     </mat-form-field>
 </div>

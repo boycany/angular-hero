@@ -1,0 +1,16 @@
+<button
+      [matButton]="appearance()"
+      [type]="type()"
+      [disabled]="disabled() || isLoading()"
+      [class]="btnClass()"
+      (click)="clickEvent.emit()"
+    >
+      @if (isLoading()) {
+        <div class="d-flex align-items-center gap-2">
+          <mat-spinner class="spinner-button__spinner" diameter="15" />
+          <ng-content select="[loadingText]" />
+        </div>
+      } @else {
+        <ng-content select="[text]" />
+      }
+    </button>

@@ -1,11 +1,17 @@
+h1 {
+    text-align: center;
+}
+
 .grid {
     display: grid;
     grid-template-columns: repeat(12, 1fr);
-    grid-gap: 2px;
+    grid-gap: 16px;
 }
 
 .form {
     padding: 8px;
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 .form__label {
@@ -14,6 +20,25 @@
     font-size: 18px;
 }
 
+.form__actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+}
+
+.col-4 {
+    grid-column: auto/span 4;
+}
+
+.col-8 {
+    grid-column: auto/span 8;
+}
+
 .col-12 {
     grid-column: auto/span 12;
+}
+
+mat-form-field {
+    width: 100%;
 }

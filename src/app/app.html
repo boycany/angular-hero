@@ -1,7 +1,55 @@
 <h1>{{ title() }}</h1>
-<form [formGroup]="form" novalidate class="form grid">
+<form [formGroup]="form" novalidate class="form grid" (submit)="onSubmit()">
+  <div class="col-8">
+    <!-- <div class="form__label">・Name:</div> -->
+    <mat-form-field>
+    <mat-label>Name</mat-label>
+      <input
+        matInput
+        type="text"
+        formControlName="name"
+        [errorStateMatcher]="errorStateMatcher"
+        name="name"
+      />
+      @if (nameControl.hasError("required")) {
+        <mat-error>Name is required</mat-error>
+      }
+    </mat-form-field>
+  </div>
+  <div class="col-4">
+    <mat-form-field>
+    <mat-label>Age</mat-label>
+      <input 
+        type="number" 
+        matInput 
+        formControlName="age" 
+        [errorStateMatcher]="errorStateMatcher"
+        name="age"
+      />
+      @if(ageControl.hasError("required")){
+        <mat-error>Age is required</mat-error>
+      }
+    </mat-form-field>
+  </div>
   <div class="col-12">
-    <div class="form__label">・Phone Number:</div>
-    <app-phone-number-control formControlName="phone" />
+    <!-- <div class="form__label">・Phone Number:</div> -->
+    <app-phone-number-control formControlName="phone" [required]="true" />
+  </div>
+  <div class="col-12">
+    <div class="form__actions">
+      <app-spinner-button
+        type="submit" 
+        appearance="filled"
+        [isLoading]="false"
+        [disabled]="form.invalid"
+        btnClass="w-100"
+      >
+        <span text>Submit</span>
+        <span loadingText>Submitting...</span>
+      </app-spinner-button>
+      <button matButton="elevated" type="button" (click)="onReset()">
+        Reset
+      </button>
+    </div>
   </div>
 </form>

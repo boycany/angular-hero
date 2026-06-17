@@ -1,7 +1,7 @@
 :host {
     display: grid;
     grid-template-columns: repeat(12, 1fr);
-    grid-gap: 4px;
+    grid-gap: 8px;
 }
   
 .field__phone--default {

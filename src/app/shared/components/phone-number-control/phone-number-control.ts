@@ -1,9 +1,9 @@
-import { ChangeDetectionStrategy, Component, forwardRef, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, forwardRef, input, signal } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule} from '@angular/material/select'
 import { MatInputModule } from '@angular/material/input';
 import { TitleCasePipe } from '@angular/common';
-import { AbstractControl, ControlValueAccessor, FormControl, NG_VALIDATORS, NG_VALUE_ACCESSOR, ReactiveFormsModule, ValidationErrors, Validator } from '@angular/forms'
+import { AbstractControl, ControlValueAccessor, FormControl, NG_VALIDATORS, NG_VALUE_ACCESSOR, ReactiveFormsModule, ValidationErrors, Validator, Validators } from '@angular/forms'
 import { RemoveUnderlinePipe } from '../../pipes/remove-underline.pipe';
 import {
   CountryCallingCode,
@@ -54,8 +54,8 @@ export class PhoneNumberControl implements ControlValueAccessor, Validator {
   countryFieldClass = input<string[]>(['field__country--default']);
 
   // country control
-  countryControl = new FormControl<CountryCode | null>(null, {
-    nonNullable: true,
+  countryControl = new FormControl<CountryCode | null>('TW', {
+    nonNullable: false,
   });
   countries: Country[] = getCountries().map((code) => ({
     code,
@@ -67,7 +67,7 @@ export class PhoneNumberControl implements ControlValueAccessor, Validator {
     nonNullable: false,
   });
   phonePlaceholder = signal('');
-
+  required = input(false)
   
   onChange = (val: string | null) => {
     // console.log('[onChange] phone number control changed', val);
@@ -102,6 +102,16 @@ export class PhoneNumberControl implements ControlValueAccessor, Validator {
     this.phoneControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((phone) => {
       this.updateValue();
     });
+
+    effect(() => {
+      if(this.required() === true){
+        this.phoneControl.addValidators(Validators.required);
+        this.countryControl.addValidators(Validators.required)
+      } else {
+        this.phoneControl.removeValidators(Validators.required);
+        this.countryControl.removeValidators(Validators.required)
+      }
+    })
   }
 
   updateValue() {
