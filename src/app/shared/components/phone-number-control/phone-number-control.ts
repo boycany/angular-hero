@@ -1,9 +1,26 @@
-import { ChangeDetectionStrategy, Component, effect, forwardRef, input, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  forwardRef,
+  input,
+  signal,
+} from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule} from '@angular/material/select'
+import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { TitleCasePipe } from '@angular/common';
-import { AbstractControl, ControlValueAccessor, FormControl, NG_VALIDATORS, NG_VALUE_ACCESSOR, ReactiveFormsModule, ValidationErrors, Validator, Validators } from '@angular/forms'
+import {
+  AbstractControl,
+  ControlValueAccessor,
+  FormControl,
+  NG_VALIDATORS,
+  NG_VALUE_ACCESSOR,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validator,
+  Validators,
+} from '@angular/forms';
 import { RemoveUnderlinePipe } from '../../pipes/remove-underline.pipe';
 import {
   CountryCallingCode,
@@ -53,9 +70,9 @@ export class PhoneNumberControl implements ControlValueAccessor, Validator {
   phoneFieldClass = input<string[]>(['field__phone--default']);
   countryFieldClass = input<string[]>(['field__country--default']);
 
-  // input 
-  required = input(false)
-  defaultCountryCode = input<CountryCode>('TW')
+  // input
+  required = input(false);
+  defaultCountryCode = input<CountryCode>('TW');
 
   // country control
   countryControl = new FormControl<CountryCode | null>(null, {
@@ -71,7 +88,7 @@ export class PhoneNumberControl implements ControlValueAccessor, Validator {
     nonNullable: false,
   });
   phonePlaceholder = signal('');
-  
+
   onChange = (val: string | null) => {
     // console.log('[onChange] phone number control changed', val);
   };
@@ -171,7 +188,9 @@ export class PhoneNumberControl implements ControlValueAccessor, Validator {
       try {
         const parsed = parsePhoneNumber(value);
         if (parsed) {
-          this.countryControl.setValue(parsed.country ?? this.defaultCountryCode(), { emitEvent: true });
+          this.countryControl.setValue(parsed.country ?? this.defaultCountryCode(), {
+            emitEvent: true,
+          });
           this.phoneControl.setValue(parsed.formatInternational(), {
             emitEvent: true,
           });
@@ -184,7 +203,9 @@ export class PhoneNumberControl implements ControlValueAccessor, Validator {
       }
     } else {
       this.phoneControl.reset();
-      this.countryControl.setValue(this.required() ? this.defaultCountryCode() : null, { emitEvent: true });
+      this.countryControl.setValue(this.required() ? this.defaultCountryCode() : null, {
+        emitEvent: true,
+      });
     }
   }
 }

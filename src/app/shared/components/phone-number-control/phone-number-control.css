@@ -1,18 +1,17 @@
 :host {
-    display: grid;
-    grid-template-columns: repeat(12, 1fr);
-    grid-gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-gap: 8px;
 }
-  
+
 .field__phone--default {
-    grid-column: auto/span 8;
+  grid-column: auto/span 8;
 }
-  
+
 .field__country--default {
-    grid-column: auto/span 4;
+  grid-column: auto/span 4;
 }
-  
+
 mat-form-field {
-    width: 100%;
+  width: 100%;
 }
-  

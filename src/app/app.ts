@@ -1,5 +1,11 @@
 import { ChangeDetectionStrategy, Component, signal, viewChild } from '@angular/core';
-import { FormControl, FormGroup, FormGroupDirective, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  FormGroupDirective,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { PhoneNumberControl } from './shared/components/phone-number-control/phone-number-control';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -13,18 +19,18 @@ import { positiveIntegerValidator } from './shared/validators/positive-integer-v
 @Component({
   selector: 'app-root',
   imports: [
-    ReactiveFormsModule, 
-    PhoneNumberControl, 
-    MatFormFieldModule, 
-    MatInputModule, 
-    SpinnerButton, 
+    ReactiveFormsModule,
+    PhoneNumberControl,
+    MatFormFieldModule,
+    MatInputModule,
+    SpinnerButton,
     MatButtonModule,
     ChiplistSelectControl,
-    JsonPipe
+    JsonPipe,
   ],
   templateUrl: './app.html',
   styleUrl: './app.css',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class App {
   protected readonly title = signal('[Wipro] Angular Hero - Dynamic Questionnaire Form');
@@ -32,25 +38,28 @@ export class App {
   readonly form = new FormGroup<QuestionnaireForm>({
     name: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required]
+      validators: [Validators.required],
     }),
     age: new FormControl(null, {
       nonNullable: false,
-      validators: [Validators.required, positiveIntegerValidator()]
+      validators: [Validators.required, positiveIntegerValidator()],
     }),
-    phone: new FormControl(null,{
+    phone: new FormControl(null, {
       nonNullable: false,
-      validators: [Validators.required]
+      validators: [Validators.required],
     }), // validated inside PhoneNumberControl component
-    habits: new FormControl<string[] | null>(null, { nonNullable: false, validators: [Validators.required] }),
-  })
+    habits: new FormControl<string[] | null>(null, {
+      nonNullable: false,
+      validators: [Validators.required],
+    }),
+  });
   readonly habitOptions = ['hiking', 'swimming', 'traveling'];
 
-  get nameControl(){
+  get nameControl() {
     return this.form.get('name') as FormControl<string>;
   }
 
-  get ageControl(){
+  get ageControl() {
     return this.form.get('age') as FormControl<number | null>;
   }
 
@@ -62,22 +71,22 @@ export class App {
     return this.form.get('habits') as FormControl<string[] | null>;
   }
 
-  errorStateMatcher = new CustomErrorStateMatcher()
+  errorStateMatcher = new CustomErrorStateMatcher();
   readonly formDir = viewChild.required(FormGroupDirective);
 
-  onSubmit(){
-    console.log('this.form.value: ', this.form.value)
+  onSubmit() {
+    console.log('this.form.value: ', this.form.value);
   }
 
-  onReset(){
+  onReset() {
     // this.form.reset()
-    this.formDir().resetForm()
+    this.formDir().resetForm();
   }
 }
 
 interface QuestionnaireForm {
   name: FormControl<string>;
   age: FormControl<number | null>;
-  phone:  FormControl<string | null>;
-  habits: FormControl<string[] | null>
+  phone: FormControl<string | null>;
+  habits: FormControl<string[] | null>;
 }

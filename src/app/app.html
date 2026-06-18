@@ -2,7 +2,7 @@
 <form [formGroup]="form" novalidate class="form grid" (submit)="onSubmit()">
   <div class="col-8">
     <mat-form-field>
-    <mat-label>Name</mat-label>
+      <mat-label>Name</mat-label>
       <input
         matInput
         type="text"
@@ -10,26 +10,26 @@
         [errorStateMatcher]="errorStateMatcher"
         name="name"
       />
-      @if (nameControl.hasError("required")) {
+      @if (nameControl.hasError('required')) {
         <mat-error>Name is required</mat-error>
       }
     </mat-form-field>
   </div>
   <div class="col-4">
     <mat-form-field>
-    <mat-label>Age</mat-label>
-      <input 
-        type="number" 
-        matInput 
-        formControlName="age" 
+      <mat-label>Age</mat-label>
+      <input
+        type="number"
+        matInput
+        formControlName="age"
         [errorStateMatcher]="errorStateMatcher"
         name="age"
         min="0"
       />
-      @if(ageControl.hasError("required")){
+      @if (ageControl.hasError('required')) {
         <mat-error>Age is required</mat-error>
       }
-      @if(ageControl.hasError("notPositiveInteger")){
+      @if (ageControl.hasError('notPositiveInteger')) {
         <mat-error>Age must be a positive integer</mat-error>
       }
     </mat-form-field>
@@ -49,7 +49,7 @@
   <div class="col-12">
     <div class="form__actions">
       <app-spinner-button
-        type="submit" 
+        type="submit"
         appearance="filled"
         [isLoading]="false"
         [disabled]="form.invalid"
@@ -58,12 +58,8 @@
         <span text>Submit</span>
         <span loadingText>Submitting...</span>
       </app-spinner-button>
-      <button matButton="elevated" type="button" (click)="onReset()">
-        Reset
-      </button>
+      <button matButton="elevated" type="button" (click)="onReset()">Reset</button>
     </div>
   </div>
 </form>
-{{
-  form.value | json
-}}
+{{ form.value | json }}

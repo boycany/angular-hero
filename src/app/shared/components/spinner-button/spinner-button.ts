@@ -7,7 +7,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   imports: [MatButtonModule, MatProgressSpinnerModule],
   templateUrl: './spinner-button.html',
   styleUrl: './spinner-button.css',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SpinnerButton {
   readonly type = input<'button' | 'submit'>('button');
@@ -15,5 +15,5 @@ export class SpinnerButton {
   readonly isLoading = input<boolean>(false);
   readonly disabled = input<boolean>(false);
   readonly btnClass = input<string>('');
-  readonly clickEvent = output<void>()
+  readonly clickEvent = output<void>();
 }
