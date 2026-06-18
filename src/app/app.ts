@@ -15,6 +15,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { ChiplistSelectControl } from './shared/components/chiplist-select-control/chiplist-select-control';
 import { JsonPipe } from '@angular/common';
 import { positiveIntegerValidator } from './shared/validators/positive-integer-validator';
+import { atLeastOneEmailValidator } from './shared/validators/at-least-one-email-validator';
+import { EmailListControl } from './shared/components/email-list-control/email-list-control';
 
 @Component({
   selector: 'app-root',
@@ -27,6 +29,7 @@ import { positiveIntegerValidator } from './shared/validators/positive-integer-v
     MatButtonModule,
     ChiplistSelectControl,
     JsonPipe,
+    EmailListControl,
   ],
   templateUrl: './app.html',
   styleUrl: './app.css',
@@ -52,6 +55,9 @@ export class App {
       nonNullable: false,
       validators: [Validators.required],
     }),
+    emails: new FormControl<string[] | null>(null, {
+      nonNullable: false,
+    }),
   });
   readonly habitOptions = ['hiking', 'swimming', 'traveling'];
 
@@ -69,6 +75,10 @@ export class App {
 
   get habitsControl() {
     return this.form.get('habits') as FormControl<string[] | null>;
+  }
+
+  get emailsControl() {
+    return this.form.get('emails') as FormControl<string[] | null>;
   }
 
   errorStateMatcher = new CustomErrorStateMatcher();
@@ -89,4 +99,5 @@ interface QuestionnaireForm {
   age: FormControl<number | null>;
   phone: FormControl<string | null>;
   habits: FormControl<string[] | null>;
+  emails: FormControl<string[] | null>;
 }

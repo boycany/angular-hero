@@ -1,0 +1,52 @@
+<div class="email-list">
+  @for (control of emails.controls; track i; let i = $index) {
+    <div class="email-list__row">
+      <mat-form-field class="email-list__field">
+        <mat-label>{{ label() }} {{ i + 1 }}</mat-label>
+        <input
+          matInput
+          type="email"
+          [formControl]="controlAt(i)"
+          [placeholder]="placeholder()"
+          [errorStateMatcher]="i === 0 ? firstRowErrorStateMatcher : errorStateMatcher"
+          (blur)="onTouched()"
+        />
+        <!-- clear button 移進 input 右側 -->
+        @if (emails.length > 1) {
+          <button
+            matIconButton
+            matSuffix
+            type="button"
+            [attr.aria-label]="'remove email ' + (i + 1)"
+            [disabled]="emails.disabled"
+            (click)="removeEmail(i)"
+          >
+            <mat-icon>remove</mat-icon>
+          </button>
+        }
+        @if ($last) {
+          <button
+            matSuffix
+            matIconButton
+            type="button"
+            aria-label="Add email"
+            [disabled]="emails.disabled"
+            (click)="addEmail()"
+          >
+            <mat-icon>add</mat-icon>
+          </button>
+        }
+        @if (controlAt(i).hasError('email')) {
+          <mat-error>Invalid email format</mat-error>
+        }
+        @if (i === 0 && emails.hasError('required')) {
+          <mat-error>At least one email is required</mat-error>
+        }
+      </mat-form-field>
+    </div>
+  }
+
+  @if (emails.hasError('duplicate')) {
+    <div class="email-list__error">Duplicate emails are not allowed</div>
+  }
+</div>

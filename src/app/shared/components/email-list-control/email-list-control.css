@@ -1,0 +1,24 @@
+:host {
+  display: block;
+}
+
+.email-list__row {
+  display: flex;
+  align-items: start;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.email-list__field {
+  flex: 1 1 auto;
+}
+
+.email-list__add {
+  margin-top: 8px;
+}
+
+.email-list__error {
+  color: var(--mat-sys-error);
+  font: var(--mat-sys-body-small);
+  margin: 0 0 8px 8px;
+}
