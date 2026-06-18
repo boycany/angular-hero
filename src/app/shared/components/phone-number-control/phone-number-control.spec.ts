@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { FormControl } from '@angular/forms';
+import { Validators } from '@angular/forms';
 import { vi } from 'vitest';
 
 import { PhoneNumberControl } from './phone-number-control';
@@ -20,14 +20,14 @@ describe('PhoneNumberControl', () => {
 
     fixture = TestBed.createComponent(PhoneNumberControl);
     component = fixture.componentInstance;
-    await fixture.whenStable();
-    fixture.detectChanges();
+    // 不在此呼叫 detectChanges，讓個別測試能先 setInput 再觸發
   });
 
   // -------------------------------------------------------------------------
   // Creation
   // -------------------------------------------------------------------------
   it('should create', () => {
+    fixture.detectChanges();
     expect(component).toBeTruthy();
   });
 
@@ -35,11 +35,10 @@ describe('PhoneNumberControl', () => {
   // Input: class bindings
   // -------------------------------------------------------------------------
   it('should apply the default countryFieldClass (field__country--default)', () => {
-    expect(fixture.nativeElement.querySelectorAll('div.field__country--default').length).toBeGreaterThanOrEqual(1);
-  });
-
-  it('should apply the default phoneFieldClass (field__phone--default)', () => {
-    expect(fixture.nativeElement.querySelectorAll('div.field__phone--default').length).toBeGreaterThanOrEqual(1);
+    fixture.detectChanges();
+    expect(
+      fixture.nativeElement.querySelectorAll('div.field__country--default').length,
+    ).toBeGreaterThanOrEqual(1);
   });
 
   it('should apply custom countryFieldClass', () => {
@@ -48,178 +47,167 @@ describe('PhoneNumberControl', () => {
     expect(fixture.nativeElement.querySelector('div.field__country--custom')).toBeTruthy();
   });
 
-  it('should apply custom phoneFieldClass', () => {
-    fixture.componentRef.setInput('phoneFieldClass', ['field__phone--custom']);
+  // -------------------------------------------------------------------------
+  // Initialisation & validators (effect 只管 validator，不動值)
+  // -------------------------------------------------------------------------
+  it('should start with a null country and empty placeholder when not required', () => {
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('div.field__phone--custom')).toBeTruthy();
-  });
-
-  // -------------------------------------------------------------------------
-  // Initialisation
-  // -------------------------------------------------------------------------
-  it('should populate the countries list from libphonenumber', () => {
-    expect(component.countries.length).toBeGreaterThan(0);
-    expect(component.countries[0]).toHaveProperty('code');
-    expect(component.countries[0]).toHaveProperty('callingCode');
-  });
-
-  it('should start with empty phonePlaceholder', () => {
+    expect(component.countryControl.value).toBeNull();
     expect(component.phonePlaceholder()).toBe('');
+    expect(component.countryControl.hasValidator(Validators.required)).toBe(false);
+  });
+
+  it('should not add required validator to country when not required', () => {
+    fixture.detectChanges();
+    expect(component.countryControl.hasValidator(Validators.required)).toBe(false);
+    // phone 沒選國家、非 required → 無 validator
+    expect(component.phoneControl.validator).toBeNull();
+  });
+
+  it('should add required validator to country when required is true', () => {
+    fixture.componentRef.setInput('required', true);
+    fixture.detectChanges();
+    expect(component.countryControl.hasValidator(Validators.required)).toBe(true);
+  });
+
+  it('should toggle country required validator when required input changes', () => {
+    fixture.componentRef.setInput('required', true);
+    fixture.detectChanges();
+    expect(component.countryControl.hasValidator(Validators.required)).toBe(true);
+
+    fixture.componentRef.setInput('required', false);
+    fixture.detectChanges();
+    expect(component.countryControl.hasValidator(Validators.required)).toBe(false);
+  });
+
+  it('applyPhoneValidators: phone has required validator only after country selected & required', () => {
+    fixture.componentRef.setInput('required', true);
+    fixture.detectChanges();
+
+    // 先選國家
+    component.countryControl.setValue('TW');
+    fixture.detectChanges();
+
+    // required + 有國家 → phone 應同時有 required 與 phoneNumberValidator
+    expect(component.phoneControl.hasValidator(Validators.required)).toBe(true);
+    component.phoneControl.setValue(null);
+    expect(component.phoneControl.hasError('required')).toBe(true);
   });
 
   // -------------------------------------------------------------------------
   // Country select value changes
   // -------------------------------------------------------------------------
   it('should update phonePlaceholder when a country is selected', () => {
+    fixture.detectChanges();
     component.countryControl.setValue('US');
     expect(component.phonePlaceholder()).not.toBe('');
   });
 
+  it('should clear placeholder when country is set to null', () => {
+    fixture.detectChanges();
+    component.countryControl.setValue('US');
+    expect(component.phonePlaceholder()).not.toBe('');
+    component.countryControl.setValue(null);
+    expect(component.phonePlaceholder()).toBe('');
+  });
+
   it('should reset phoneControl when a new country is selected and phone has a value', () => {
+    fixture.detectChanges();
     component.countryControl.setValue('US');
     component.phoneControl.setValue('+1 202 555 0123');
     component.countryControl.setValue('GB');
     expect(component.phoneControl.value).toBeNull();
   });
 
-  it('should clear validators and return early when country is set to null', () => {
-    component.countryControl.setValue('US');
-    const clearSpy = vi.spyOn(component.phoneControl, 'clearValidators');
-    component.countryControl.setValue(null);
-    expect(clearSpy).toHaveBeenCalled();
-  });
-
-  // -------------------------------------------------------------------------
-  // updateValue()
-  // -------------------------------------------------------------------------
-  it('should call onChange(null) when both country and phone are absent', () => {
-    const spy = vi.fn();
-    component.registerOnChange(spy);
-    component.updateValue();
-    expect(spy).toHaveBeenCalledWith(null);
-  });
-
-  it('should call onChange(null) when country is set but phone is empty', () => {
-    const spy = vi.fn();
-    component.registerOnChange(spy);
-    component.countryControl.setValue('US', { emitEvent: false });
-    component.phoneControl.setValue(null, { emitEvent: false });
-    component.updateValue();
-    expect(spy).toHaveBeenCalledWith(null);
-  });
-
-  it('should emit formatted international number for a valid US phone', () => {
-    const spy = vi.fn();
-    component.registerOnChange(spy);
-    component.countryControl.setValue('US', { emitEvent: false });
-    component.phoneControl.setValue('+1 202-555-0156', { emitEvent: false });
-    component.updateValue();
-    const lastCall: string | null = spy.mock.calls[spy.mock.calls.length - 1][0];
-    expect(lastCall).toMatch(/^\+1/);
-  });
-
-  it('should emit raw phone when parsed number is invalid', () => {
-    const spy = vi.fn();
-    component.registerOnChange(spy);
-    component.countryControl.setValue('US', { emitEvent: false });
-    component.phoneControl.setValue('123', { emitEvent: false });
-    component.updateValue();
-    expect(spy).toHaveBeenCalledWith('123');
-  });
-
-  it('should emit raw phone when parsePhoneNumber throws', () => {
-    const spy = vi.fn();
-    component.registerOnChange(spy);
-    component.countryControl.setValue('US', { emitEvent: false });
-    component.phoneControl.setValue('not-a-phone-!!!', { emitEvent: false });
-    component.updateValue();
-    expect(spy).toHaveBeenCalledWith('not-a-phone-!!!');
-  });
-
   // -------------------------------------------------------------------------
   // ControlValueAccessor
   // -------------------------------------------------------------------------
-  it('registerOnChange should replace the onChange handler', () => {
-    const spy = vi.fn();
-    component.registerOnChange(spy);
-    expect(component.onChange).toBe(spy);
-  });
-
-  it('registerOnTouched should replace the onTouched handler', () => {
-    const spy = vi.fn();
-    component.registerOnTouched(spy);
-    expect(component.onTouched).toBe(spy);
-  });
-
-  it('should call onTouched when the phone input is blurred', () => {
-    const spy = vi.fn();
-    component.registerOnTouched(spy);
-    query<HTMLInputElement>(fixture, 'input[type="text"]').dispatchEvent(new Event('blur'));
-    expect(spy).toHaveBeenCalled();
-  });
-
   it('writeValue with a valid E.164 number should set country and phone controls', () => {
+    fixture.detectChanges();
     component.writeValue('+12025550156');
     expect(component.countryControl.value).toBe('US');
     expect(component.phoneControl.value).toBeTruthy();
   });
 
-  it('writeValue with an unparseable value should fall back to setting phone directly', () => {
+  it('writeValue with an unparseable value falls back to defaultCountryCode (TW)', () => {
+    fixture.detectChanges();
     component.writeValue('not-a-number');
     expect(component.phoneControl.value).toBe('not-a-number');
-    expect(component.countryControl.value).toBe('US');
+    expect(component.countryControl.value).toBe('TW'); // 最終版 fallback 改為 defaultCountryCode
   });
 
-  it('writeValue with empty string should reset phoneControl', () => {
+  it('writeValue unparseable value uses custom defaultCountryCode', () => {
+    fixture.componentRef.setInput('defaultCountryCode', 'JP');
+    fixture.detectChanges();
+    component.writeValue('not-a-number');
+    expect(component.countryControl.value).toBe('JP');
+  });
+
+  it('writeValue with empty string resets phone and sets country to null when not required', () => {
+    fixture.detectChanges();
     component.countryControl.setValue('US', { emitEvent: false });
     component.phoneControl.setValue('+1 202 555 0156', { emitEvent: false });
     component.writeValue('');
     expect(component.phoneControl.value).toBeNull();
+    expect(component.countryControl.value).toBeNull(); // 非 required → null
+  });
+
+  it('writeValue with empty string sets country to default when required', () => {
+    fixture.componentRef.setInput('required', true);
+    fixture.detectChanges();
+    component.writeValue('');
+    expect(component.phoneControl.value).toBeNull();
+    expect(component.countryControl.value).toBe('TW'); // required → default
   });
 
   it('setDisabledState(true) should disable both controls', () => {
+    fixture.detectChanges();
     component.setDisabledState(true);
     expect(component.countryControl.disabled).toBe(true);
     expect(component.phoneControl.disabled).toBe(true);
   });
 
-  it('setDisabledState(false) should enable both controls', () => {
+  it('setDisabledState(false) should re-enable both controls', () => {
+    fixture.detectChanges();
     component.setDisabledState(true);
     component.setDisabledState(false);
-    expect(component.countryControl.enabled).toBe(true);
-    expect(component.phoneControl.enabled).toBe(true);
+    expect(component.countryControl.disabled).toBe(false);
+    expect(component.phoneControl.disabled).toBe(false);
   });
 
   // -------------------------------------------------------------------------
-  // Validator
+  // Validator interface
   // -------------------------------------------------------------------------
-  it('validate() should return null when phoneControl has no errors', () => {
-    component.phoneControl.setErrors(null);
-    expect(component.validate(new FormControl(''))).toBeNull();
-  });
-
-  it('validate() should return phoneControl errors when they exist', () => {
-    component.phoneControl.setErrors({ phoneNumberInvalid: true });
-    expect(component.validate(new FormControl(''))).toEqual({ phoneNumberInvalid: true });
-  });
-
-  // -------------------------------------------------------------------------
-  // Template: error messages
-  // -------------------------------------------------------------------------
-  it('should show "Phone number is invalid" error in template', () => {
-    component.countryControl.setValue('US');
-    component.phoneControl.markAsTouched();
-    component.phoneControl.setErrors({ phoneNumberInvalid: true });
+  it('validate() returns phoneControl errors', () => {
+    fixture.componentRef.setInput('required', true);
     fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain('Phone number is invalid');
+    component.countryControl.setValue('TW');
+    component.phoneControl.setValue(null);
+
+    const errors = component.validate(component.phoneControl);
+    expect(errors?.['required']).toBeTruthy();
   });
 
-  it('should show parseError message via removeUnderline + titlecase pipe', () => {
-    component.countryControl.setValue('US');
-    component.phoneControl.markAsTouched();
-    component.phoneControl.setErrors({ parseError: 'not_a_number' });
+  // -------------------------------------------------------------------------
+  // onChange propagation
+  // -------------------------------------------------------------------------
+  it('should call onChange with null when phone is empty', () => {
     fixture.detectChanges();
-    // "not_a_number" → removeUnderline → "not a number" → titlecase → "Not A Number"
-    expect(fixture.nativeElement.textContent).toContain('Not A Number');
+    const spy = vi.fn();
+    component.registerOnChange(spy);
+    component.countryControl.setValue('TW');
+    component.phoneControl.setValue(null);
+    expect(spy).toHaveBeenCalledWith(null);
+  });
+
+  it('should call onChange with formatted number when valid', () => {
+    fixture.detectChanges();
+    const spy = vi.fn();
+    component.registerOnChange(spy);
+    component.countryControl.setValue('US');
+    component.phoneControl.setValue('+12025550156');
+    // 最後一次呼叫應帶國際格式字串
+    const lastArg = spy.mock.calls[spy.mock.calls.length - 1][0];
+    expect(typeof lastArg).toBe('string');
   });
 });

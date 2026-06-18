@@ -1,7 +1,6 @@
 <h1>{{ title() }}</h1>
 <form [formGroup]="form" novalidate class="form grid" (submit)="onSubmit()">
   <div class="col-8">
-    <!-- <div class="form__label">・Name:</div> -->
     <mat-form-field>
     <mat-label>Name</mat-label>
       <input
@@ -25,14 +24,17 @@
         formControlName="age" 
         [errorStateMatcher]="errorStateMatcher"
         name="age"
+        min="0"
       />
       @if(ageControl.hasError("required")){
         <mat-error>Age is required</mat-error>
       }
+      @if(ageControl.hasError("notPositiveInteger")){
+        <mat-error>Age must be a positive integer</mat-error>
+      }
     </mat-form-field>
   </div>
   <div class="col-12">
-    <!-- <div class="form__label">・Phone Number:</div> -->
     <app-phone-number-control formControlName="phone" [required]="true" />
   </div>
   <div class="col-12">

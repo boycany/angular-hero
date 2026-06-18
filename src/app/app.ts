@@ -8,6 +8,7 @@ import { SpinnerButton } from './shared/components/spinner-button/spinner-button
 import { MatButtonModule } from '@angular/material/button';
 import { ChiplistSelectControl } from './shared/components/chiplist-select-control/chiplist-select-control';
 import { JsonPipe } from '@angular/common';
+import { positiveIntegerValidator } from './shared/validators/positive-integer-validator';
 
 @Component({
   selector: 'app-root',
@@ -35,7 +36,7 @@ export class App {
     }),
     age: new FormControl(null, {
       nonNullable: false,
-      validators: [Validators.required]
+      validators: [Validators.required, positiveIntegerValidator()]
     }),
     phone: new FormControl(null,{
       nonNullable: false,

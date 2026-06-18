@@ -53,8 +53,12 @@ export class PhoneNumberControl implements ControlValueAccessor, Validator {
   phoneFieldClass = input<string[]>(['field__phone--default']);
   countryFieldClass = input<string[]>(['field__country--default']);
 
+  // input 
+  required = input(false)
+  defaultCountryCode = input<CountryCode>('TW')
+
   // country control
-  countryControl = new FormControl<CountryCode | null>('TW', {
+  countryControl = new FormControl<CountryCode | null>(null, {
     nonNullable: false,
   });
   countries: Country[] = getCountries().map((code) => ({
@@ -67,7 +71,6 @@ export class PhoneNumberControl implements ControlValueAccessor, Validator {
     nonNullable: false,
   });
   phonePlaceholder = signal('');
-  required = input(false)
   
   onChange = (val: string | null) => {
     // console.log('[onChange] phone number control changed', val);
@@ -86,33 +89,6 @@ export class PhoneNumberControl implements ControlValueAccessor, Validator {
 
   errorStateMatcher = new CustomErrorStateMatcher();
 
-  // constructor() {
-  //   this.countryControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((countryCode) => {
-  //     this.phoneControl.clearValidators();
-  //     if (!countryCode) return;
-
-  //     if (this.phoneControl.value) {
-  //       this.phoneControl.reset();
-  //     }
-  //     this.phoneControl.addValidators(phoneNumberValidator(countryCode));
-  //     this.phonePlaceholder.set(getPhoneNumberPlaceholder(countryCode));
-  //     this.updateValue();
-  //   });
-
-  //   this.phoneControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((phone) => {
-  //     this.updateValue();
-  //   });
-
-  //   effect(() => {
-  //     if(this.required() === true){
-  //       this.phoneControl.addValidators(Validators.required);
-  //       this.countryControl.addValidators(Validators.required)
-  //     } else {
-  //       this.phoneControl.removeValidators(Validators.required);
-  //       this.countryControl.removeValidators(Validators.required)
-  //     }
-  //   })
-  // }
   constructor() {
     // 換國家：重設 phone 的 validator（含 required），清掉舊號碼
     this.countryControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((countryCode) => {
@@ -168,7 +144,7 @@ export class PhoneNumberControl implements ControlValueAccessor, Validator {
           this.onChange(phone);
         }
       } catch (e) {
-        console.log('Error parsing phone number :>> ', e);
+        // console.log('Error parsing phone number :>> ', e);
         this.onChange(phone);
       }
     } else {
@@ -195,21 +171,20 @@ export class PhoneNumberControl implements ControlValueAccessor, Validator {
       try {
         const parsed = parsePhoneNumber(value);
         if (parsed) {
-          this.countryControl.setValue(parsed.country ?? 'US', {
-            emitEvent: true,
-          });
+          this.countryControl.setValue(parsed.country ?? this.defaultCountryCode(), { emitEvent: true });
           this.phoneControl.setValue(parsed.formatInternational(), {
             emitEvent: true,
           });
         }
       } catch (e) {
         // If parse fails, just put it in number
-        console.log('Error parsing phone number :>> ', e);
+        // console.log('Error parsing phone number :>> ', e);
         this.phoneControl.setValue(value, { emitEvent: false });
-        this.countryControl.setValue('US', { emitEvent: false });
+        this.countryControl.setValue(this.defaultCountryCode(), { emitEvent: false });
       }
     } else {
       this.phoneControl.reset();
+      this.countryControl.setValue(this.required() ? this.defaultCountryCode() : null, { emitEvent: true });
     }
   }
 }
