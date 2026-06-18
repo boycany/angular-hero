@@ -53,20 +53,41 @@
       addButtonLabel="Add email"
     />
   </div>
+  <!-- Status：readonly 顯示 -->
+  <div class="col-12">
+    <mat-form-field>
+      <mat-label>Status</mat-label>
+      <input matInput type="text" formControlName="status" readonly name="status" />
+    </mat-form-field>
+  </div>
   <div class="col-12">
     <div class="form__actions">
-      <app-spinner-button
-        type="submit"
-        appearance="filled"
-        [isLoading]="false"
-        [disabled]="form.invalid"
-        btnClass="w-100"
-      >
-        <span text>Submit</span>
-        <span loadingText>Submitting...</span>
-      </app-spinner-button>
+      @if (isCompleted()) {
+        <!-- 完成狀態：complete 的 disabled button -->
+        <app-spinner-button
+          type="button"
+          appearance="filled"
+          [isLoading]="false"
+          [disabled]="true"
+          btnClass="w-100"
+        >
+          <span text>Submitted</span>
+          <span loadingText>Submitted</span>
+        </app-spinner-button>
+      } @else {
+        <!-- 編輯 / submitting -->
+        <app-spinner-button
+          type="submit"
+          appearance="filled"
+          [isLoading]="isSubmitting()"
+          [disabled]="form.invalid || isSubmitting()"
+          btnClass="w-100"
+        >
+          <span text>Submit</span>
+          <span loadingText>Submitting...</span>
+        </app-spinner-button>
+      }
       <button matButton="elevated" type="button" (click)="onReset()">Reset</button>
     </div>
   </div>
 </form>
-{{ form.value | json }}

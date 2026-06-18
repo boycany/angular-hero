@@ -1,3 +1,9 @@
-.spinner-button__spinner {
+.button__loading-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.button__spinner {
   --mat-progress-spinner-active-indicator-color: currentColor;
 }

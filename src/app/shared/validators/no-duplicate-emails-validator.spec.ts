@@ -31,7 +31,9 @@ describe('noDuplicateEmailsValidator', () => {
   });
 
   it('should detect duplicates ignoring surrounding whitespace', () => {
-    expect(validator(makeArray(['  a@example.com  ', 'a@example.com']))).toEqual({ duplicate: true });
+    expect(validator(makeArray(['  a@example.com  ', 'a@example.com']))).toEqual({
+      duplicate: true,
+    });
   });
 
   it('should ignore empty / whitespace-only values when checking duplicates', () => {
@@ -45,7 +47,9 @@ describe('noDuplicateEmailsValidator', () => {
   });
 
   it('should detect duplicates even when empty values are present', () => {
-    expect(validator(makeArray(['a@example.com', '', 'a@example.com']))).toEqual({ duplicate: true });
+    expect(validator(makeArray(['a@example.com', '', 'a@example.com']))).toEqual({
+      duplicate: true,
+    });
   });
 
   it('should handle three identical emails', () => {
